@@ -6,7 +6,7 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.prompts import ChatPromptTemplate
 from langchain.chat_models import ChatOpenAI, AzureChatOpenAI
 from langchain.llms import Cohere
- 
+import os
 
 chat = ChatOpenAI(temperature=0.0 )
 
@@ -14,7 +14,7 @@ chatAzure = AzureChatOpenAI(
     openai_api_base= "https://bttaidoc.openai.azure.com/",
     openai_api_version="2023-03-15-preview",
     deployment_name='gpt35turbo',
-    openai_api_key='de1c603ee9a84d3aa0c0b82ccbdde577',
+    openai_api_key=os.getenv("OPENAI_API_KEY_azure"),
     openai_api_type="azure",
 )
 
@@ -66,14 +66,23 @@ llm_chain_cohere= LLMChain(prompt=prompt, llm=llmCohere)
 print("\n\n\n\n ############ llmCohere : ",llm_chain_cohere.run(context_and_question_chain))
 
 # Make sure the model path is correct for your system!
-llm = LlamaCpp(
-                model_path="/Users/henryking/llama.cpp/models/ggml-vic7b-q5_1.bin",
+llamaCpp = LlamaCpp(
+                model_path="/Users/henryking/llama.cpp/models/ggml-vic13b-q5_1.bin",
                 callback_manager=callback_manager,
                 verbose=True,
                 n_threads=6,
                 n_ctx=2048,
-                use_mlock=True)
-
-llm_chain_llamacpp = LLMChain(prompt=prompt, llm=llm)
+                use_mlock=True) 
+'''
+llamaCpp = LlamaCpp(
+    model_path="/Users/henryking/llama.cpp/models/llama-2-7b.ggmlv3.q5_K_M.bin",
+    
+    input={"temperature": 0.5, "max_length": 3000, "top_p": 1},
+    n_ctx=2900,
+    callback_manager=callback_manager,
+    verbose=True,
+)
+'''
+llm_chain_llamacpp = LLMChain(prompt=prompt, llm=llamaCpp)
 
 print("\n\n\n\n ############ LlamaCpp : ",llm_chain_llamacpp.run(context_and_question_chain))

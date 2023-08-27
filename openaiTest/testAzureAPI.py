@@ -45,7 +45,7 @@ openai.api_type = "azure"
 openai.api_base = "https://bttaidoc.openai.azure.com/"
 openai.api_version = "2023-05-15"
 openai.api_key = os.getenv("OPENAI_API_KEY_azure")
-
+print (os.getenv("OPENAI_API_KEY_azure"))
 
 for i in range(500):
     promptInput = input("\n Input your mesage for azure CHAT-GPT :")

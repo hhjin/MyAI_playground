@@ -7,7 +7,7 @@ from langchain.llms import AzureOpenAI
 openai.api_type = "azure"
 openai.api_base = "https://bttaidoc.openai.azure.com/"
 openai.api_version = "2022-12-01"
-openai.api_key = 'de1c603ee9a84d3aa0c0b82ccbdde577'
+openai.api_key = os.getenv("OPENAI_API_KEY_azure")
 
 import warnings
 warnings.filterwarnings('ignore')

@@ -36,7 +36,7 @@ chatAzure = AzureChatOpenAI(
     openai_api_base= "https://bttaidoc.openai.azure.com/",
     openai_api_version="2023-03-15-preview",
     deployment_name='gpt35turbo',
-    openai_api_key='de1c603ee9a84d3aa0c0b82ccbdde577',
+    openai_api_key=os.getenv("OPENAI_API_KEY_azure"),
     openai_api_type="azure",
 )
 
