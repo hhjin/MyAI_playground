@@ -50,24 +50,28 @@ for i, t in enumerate(tokens ):
 print(f"###### totalTokens  : {totalTokens}")
 print(f"###### totalCharLength  : {totalCharLength}")
 
-CHUNK_SIZE=    490  #289   #374   #430   #490
-OVERLAP_SIZE=   90  #30    #123   #60    #90
+CHUNK_SIZE=  334  #1666 #char   #334      #374   #430   #490
+OVERLAP_SIZE= 60 #166 #char    #60       #123   #60    #90
 
 #supabase param
-table_name="udtt_ic490_langchain"
-query_name="match_udtt_ic490_langchain"
+table_name="udtt_ic1666c_langchain"
+query_name="match_udtt_ic1666c_langchain"
 
 tokenTextSplitter =  TokenTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=OVERLAP_SIZE)
-'''
+charTextSplitter =  CharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=OVERLAP_SIZE ,separator=" ")
+
+textSplitter=tokenTextSplitter
+ 
 ###### 如果 supabase 中断，可以从中断的indxe继续 ，##### Current block index  : 789
-contents = contents[1321:]
-titles= titles[1321:]
-urls= urls[1321:]
-'''
+#contents = contents[1768:]
+#titles= titles[1768:]
+#urls= urls[1768:]
+ 
 
 docs = []
 metadatas = []
 totalCount=0;
+skipedCount=0
 for i, d in enumerate(contents ):
     print("\n\n\n #### raw chunk " + str(i) + ":\n" +d)
  
@@ -77,31 +81,44 @@ for i, d in enumerate(contents ):
     context_path = first_line
     
     # 文本清洗  # pg_vector documents的清洗方式
-    '''
+    #'''
     cleanedDoc = re.sub(r'\s+', ' ', d)   #把多个连续空格,换行制表符替换成单个空格 
     cleanedDoc=re.sub('\n', ' ', cleanedDoc)   #把所有换行替换成个空格 
-    '''
+    #'''
 
     ## 保留换行的另一种清洗方式    
+    '''
     cleanedDoc = re.sub(r' +', ' ', d)    # 把多个空格合并
     cleanedDoc=re.sub('\n{2,}', '\n', cleanedDoc)  # 把多个换行'\n\n'合并
     cleanedDoc=re.sub('\n +\n', '\n', cleanedDoc)  # 把多个换行空格换行合并
-   
+    ''' 
 
     #如果除了context path的内容很少, 跳过
-    if   len(cleanedDoc) < len(context_path) + 74:
+    if   len(cleanedDoc) < len(context_path) + 160:
         print (lines[0]) 
+        skipedCount+=1
         continue
 
 
-    # 文本分割
-    splits = tokenTextSplitter.split_text(cleanedDoc)
+    # 文本分割 
+    splits  = textSplitter.split_text(cleanedDoc)
 
-    #检查splits 最后一个元素的token size ，倒数第二个元素与最后一个元素进行合并
-    token_count = num_tokens_from_string(splits[-1], "gpt-3.5-turbo")
-    if token_count <OVERLAP_SIZE + 174  and len(splits) > 1:
-        splits[-2] += splits[-1]
-        splits.pop()
+    # 检测 textSplitter 是否是TokenTextSplitter
+    if isinstance(textSplitter, TokenTextSplitter):
+        print("textSplitter is TokenTextSplitter")
+        #检查splits 最后一个元素的token size ，倒数第二个元素与最后一个元素进行合并
+        # only for token spliter
+        token_count = num_tokens_from_string(splits[-1], "gpt-3.5-turbo")
+        if token_count <OVERLAP_SIZE + 174  and len(splits) > 1:
+            splits[-2] += splits[-1]
+            splits.pop()
+    else: 
+        print("textSplitter is CharacterTextSplitter")
+        char_count=len(splits[-1])
+        if char_count <OVERLAP_SIZE + 666  and len(splits) > 1:
+            splits[-2] += splits[-1]
+            splits.pop()
+
     ## 拼接开头的title 和context path到 splits里
     for j in  range(len(splits)):
         if j==0 :
@@ -117,7 +134,7 @@ for i, d in enumerate(contents ):
     metadatas.extend([{"source": urls[i] , "context_path": context_path}] * len(splits))
 
     #### BLOCK FOR supabase  
-    #'''
+    '''
     # 分小批量写入防止supabase报错，或者i是contents的最后一个索引，调用函数 SupabaseVectorStore.from_texts
     if (i + 1) % 2 == 0 or i == len(contents) - 1:
         print(f"\n\n\n ####### Total content size : {len(contents)}   ####### Current block index  : {i}")
@@ -130,10 +147,10 @@ for i, d in enumerate(contents ):
         totalCount=totalCount + len(docs)
         docs = []
         metadatas = []
-    #'''
+    '''
 
 print(f"\n\n ################################## total records : {totalCount}  {len(metadatas)} " )
-
+print(f"\n\n ################################## skipedCount records : {skipedCount}  " )
 
 '''  #### BLOCK FOR Chroma 
 vector_store = Chroma.from_texts(docs, langchain_embeddings_azureopenai , metadatas=metadatas, persist_directory="./Chroma_DB_UDTT_IC374/OpenAI")

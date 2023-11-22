@@ -6,23 +6,23 @@ start_time = time.time()
 
 #model_size = "large-v2"   # 3G
 #model_size  = "medium"     # 1.5G  working after re-install faster-whisper package. 
-
-model_size  = "large-v2"
+#model_size  = "d:/fast-whisper-large-v3"  # both large-v3 Not supported by current faster_whisper
+ 
+model_size  = "medium"
 
 # Run on CPU with INT8 
 model = WhisperModel(model_size, device="cpu", compute_type="int8")
  
-
 # or run on GPU with FP16
-# model = WhisperModel(model_size, device="cuda", compute_type="int8_float16")
+#model = WhisperModel(model_size, device="cuda", compute_type="int8_float16")
 
 #segments, info = model.transcribe("/Users/henryking/Desktop/WhisperOutput/Home/Home 0622_2.m4a", language="zh" , beam_size=5)
 
-full_fileName="/Users/henryking/Downloads/ChatUDTTDocMeeting0808.m4a"
-output_file="/Users/henryking/Downloads/ChatUDTTDocMeeting0808.txt"
-output_mdfile="/Users/henryking/Downloads/ChatUDTTDocMeeting0808.md"
+full_fileName="/Users/henryking/Desktop/WhisperOutput/Unicom ANZ Meetings/ANZ Memory 2023-09-07/新录音 15.m4a"
+output_file="/Users/henryking/Desktop/WhisperOutput/Unicom ANZ Meetings/ANZ Memory 2023-09-07/新录音 15_medium.txt"
+output_mdfile="/Users/henryking/Desktop/WhisperOutput/Unicom ANZ Meetings/ANZ Memory 2023-09-07/新录音 15_medium.md"
 # vad_filter=True   Silero VAD model to filter out parts of the audio without speech, the default is more than 2s
-# 缺省的 beam_size=5 对于 small 和 medium 在M1上最优值，调到8反而带来时间变长，质量下降 , 对large似乎beam=8最佳效果，但时间多50%
+# 缺省的 beam_size=5 对于 small 和 medium 在M1上最优值，调到8反而带来时间变长，质量下降 , 对large似乎beam=8最佳效果，但时间多50%。 ##在FamilyServer上，GPU + beam_size=6 对 large效果不错
 segments, info = model.transcribe(full_fileName , beam_size=5 ,vad_filter=True) 
 
 print("Detected language '%s' with probability %f" % (info.language, info.language_probability))

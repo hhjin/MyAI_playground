@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<!--
+    通过某国内服务商的ip api进行jsonp请求演示。可将此<script>标签内容复制到任何html上，也可以通过反代其他网站后，插入本标签内容。如果用户使用的分流模式，并且使用的国内ds结果（此服务商有国外cdn)，页面加载后即会弹窗显示国内p，不会出现跨域错误。
+
+也可修改回调函数来实现其他逻辑。本api被广泛应用于各种场景下时间戳获取，同时也会返回用户的ip，感兴趣的可以在vs code下创建一个html文件，输入感叹号后按tab，即可生成一个html模板，把以下内容粘贴进head或者body标签内即可。
+
+<script>
+
+function getinformation(data) var ip data.ip;
+
+window.alert('IP地址:·+ip)
+
+</script>
+
+<script src="https://vv.video.qq.com/checktime?
+
+otype=json&callback=getinformation"></script>
+
+本推送主要是用于进一步详解上条推送所说的jsonp请求导致的国内 p泄露问题，以及代理国内外分流模式下特殊情况存在的隐患。仅供参考，请勿以身试法
+-->
+<body>
+    <script>
+
+        function getinformation( data){
+         var ip = data.ip;
+        
+        window.alert( 'IP地址:'+ip);
+        }
+        </script>
+        
+        <script src="https://vv.video.qq.com/checktime?otype=json&callback=getinformation"></script>
+</body>
+</html>

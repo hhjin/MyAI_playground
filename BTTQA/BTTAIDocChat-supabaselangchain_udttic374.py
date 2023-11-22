@@ -110,7 +110,7 @@ langchain.verbose = False
 myQAKit=QA_Toolkit( )
 storeOpenAI_Supabase=myQAKit.get_dbstore_supabase( table_name="udtt_ic490_langchain" , query_name="match_udtt_ic490_langchain")
 
-llmAzureChat=myQAKit.get_chat_azure(streaming=True,deployment_name="gpt35turbo-16k", max_tokens=2300, temperature=0.23,)
+llmAzureChat=myQAKit.get_chat_azure(streaming=True,deployment_name="gpt35turbo",  max_tokens=7600,temperature=0.13)
 
 '''
 #store_Cohere=myQAKit.get_dbstore_cohere()
@@ -136,6 +136,6 @@ while True:
           if query=="":
                 break
         
-        result=bttqa_chat_chain(llmAzureChat, storeOpenAI_Supabase, query, chat_prompt ,chat_history ,10 )               
+        result=bttqa_chat_chain(llmAzureChat, storeOpenAI_Supabase, query, chat_prompt ,chat_history ,9 )               
         
         #chat_history.append((query, result))

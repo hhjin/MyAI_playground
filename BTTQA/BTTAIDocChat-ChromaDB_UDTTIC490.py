@@ -106,12 +106,12 @@ def bttqa_chat_chain(llm, store, query , chat_prompt,  chat_history=[], topk=6 )
 
 
 #############     main start   #############################  
-langchain.verbose = False
+langchain.verbose = True
 myQAKit=QA_Toolkit("./Chroma_DB_UDTT_IC490")
 storeOpenAI_Chroma=myQAKit.get_dbstore_openai()
 storeOpenAI_Supabase=myQAKit.get_dbstore_supabase()
 
-llmAzureChat=myQAKit.get_chat_azure(streaming=True,deployment_name="gpt35turbo-16k", max_tokens=2300, temperature=0.23,)
+llmAzureChat=myQAKit.get_chat_azure(streaming=True,deployment_name="gpt35turbo-16k", max_tokens=7300, temperature=0.13)
 llmAzure3000=myQAKit.get_llm_azure( max_tokens=3000)
 
 '''
@@ -138,6 +138,6 @@ while True:
           if query=="":
                 break
         
-        result=bttqa_chat_chain(llmAzureChat, storeOpenAI_Chroma, query, chat_prompt ,chat_history ,8 )               
+        result=bttqa_chat_chain(llmAzureChat, storeOpenAI_Chroma, query, chat_prompt ,chat_history ,12 )               
         
         #chat_history.append((query, result))

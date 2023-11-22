@@ -58,9 +58,9 @@ store_Cohere=myQAKit.get_dbstore_cohere()
 #############   选择一个vector store  ###################### 
 docsearch = store_Cohere
 
-#llm=myQAKit.get_chat_azure(streaming=True,deployment_name="gpt35turbo-16k", max_tokens=2300, temperature=0.23,)
+llm=myQAKit.get_chat_azure(streaming=True,deployment_name="gpt35turbo-16k", max_tokens=2300, temperature=0.23,)
 
-llm = ChatOpenAI(temperature=0,   model="gpt-3.5-turbo-0613", max_tokens=500, streaming=True ,callbacks=[StreamingStdOutCallbackHandler()])
+#llm = ChatOpenAI(temperature=0,   model="gpt-3.5-turbo-0613", max_tokens=500, streaming=True ,callbacks=[StreamingStdOutCallbackHandler()])
 
 
 _template = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.\

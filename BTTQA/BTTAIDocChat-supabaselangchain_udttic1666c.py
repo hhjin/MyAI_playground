@@ -107,12 +107,26 @@ def bttqa_chat_chain(llm, store, query , chat_prompt,  chat_history=[], topk=6 )
 
 #############     main start   #############################  
 langchain.verbose = False
-myQAKit=QA_Toolkit()
- 
-storeOpenAI_Supabase=myQAKit.get_dbstore_supabase()
+myQAKit=QA_Toolkit( )
+storeOpenAI_Supabase=myQAKit.get_dbstore_supabase( table_name="udtt_ic1666c_langchain" , query_name="match_udtt_ic1666c_langchain")
 
-llmAzureChat=myQAKit.get_chat_azure(streaming=True,deployment_name="gpt35turbo-16k", max_tokens=2300, temperature=0.23,)
- 
+llmAzureChat=myQAKit.get_chat_azure(streaming=True,deployment_name="gpt35turbo-16k", max_tokens=2300, temperature=0.23)
+
+'''
+#store_Cohere=myQAKit.get_dbstore_cohere()
+#store_SETF=myQAKit.get_dbstore_sentence()
+#cohere 不支持Chatchain
+callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
+llamaCpp = LlamaCpp(
+    model_path="/Users/henryking/llama.cpp/models/llama-2-13b-chat.ggmlv3.q5_0.bin",
+    #model_path="/Users/henryking/llama.cpp/models/ggml-vic7b-q5_1.bin",
+    input={"temperature": 0.5, "max_length": 3000, "top_p": 1},
+    n_ctx=2900,
+    callback_manager=callback_manager,
+    verbose=True,
+)
+'''
+
 chat_history=[]
 while True:
         query =input("\n\n####### Question for BTT: ")
@@ -122,6 +136,6 @@ while True:
           if query=="":
                 break
         
-        result=bttqa_chat_chain(llmAzureChat, storeOpenAI_Supabase, query, chat_prompt ,chat_history ,12 )               
+        result=bttqa_chat_chain(llmAzureChat, storeOpenAI_Supabase, query, chat_prompt ,chat_history ,8)               
         
         #chat_history.append((query, result))
