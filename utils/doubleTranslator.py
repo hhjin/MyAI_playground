@@ -5,6 +5,8 @@ from langchain.chat_models import ChatOpenAI ,AzureChatOpenAI
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 import sys
 import re
+import argparse
+import os
 
 from langchain.prompts.chat import (
     ChatPromptTemplate,
@@ -118,15 +120,28 @@ prompt_messages_2ndtTrans = [
 ]
 
 langchain.verbose = True
-llmchat=AzureChatOpenAI(streaming=True,deployment_name="gpt35turbo-16k", max_tokens=1500, temperature=0, callbacks=[StreamingStdOutCallbackHandler()])
-  
+#llmchat=AzureChatOpenAI(streaming=True,deployment_name="gpt35turbo-16k", max_tokens=1500, temperature=0, callbacks=[StreamingStdOutCallbackHandler()])
+llmchat=ChatOpenAI(streaming=True,model_name="gpt-4", max_tokens=1500, temperature=0, callbacks=[StreamingStdOutCallbackHandler()])
+    
 chat_prompt_1stTrans = ChatPromptTemplate(messages=prompt_messages_1stTrans)
 chat_prompt_2ndTrans = ChatPromptTemplate(messages=prompt_messages_2ndtTrans)
 
 chain1st = LLMChain(llm=llmchat, prompt=chat_prompt_1stTrans)
 chain2nd = LLMChain(llm=llmchat, prompt=chat_prompt_2ndTrans)
 
-fileName='HowToDoGreatWork.md'
+
+# Parse arguments
+'''
+parser = argparse.ArgumentParser(description='Polish the  Chinese(translated) with GPT')
+parser.add_argument('fileName', type=str, help='中文第一次翻译原文')
+args = parser.parse_args()
+fileName=args.fileName
+output1stFileName = os.path.splitext(fileName)[0] + '_精译.md'
+print(f"\n\n########    output_file_name  :  {output1stFileName}")
+'''
+
+fileName='SuperlinearReturns.md'
+
 output1stFileName=fileName.split('.')[0]+"_翻译.md"
 output1stText=f"\n\n######################  {output1stFileName} ##########\n\n"
 output2ndFileName=fileName.split('.')[0]+"_精译.md"
@@ -143,20 +158,23 @@ chunks = split_text_into_chunks(markdown_text)
 for txt in chunks:
     print(txt)
 for i, chunk in enumerate(chunks):
-    #if i!=4 :
-     #   continue
-    print(f"\n\n\n################################### chunk - {i}  \n")
-    inputs1= {"essay": chunk}
-    response1 = chain1st.run(inputs1)
-    output1stText = output1stText + response1
-    #print (f"\n 第一次翻译结果： " ,response1)
+    if i!=0 :
+        continue
+    try :
+        print(f"\n\n\n################################### chunk - {i}  \n")
+        inputs1= {"essay": chunk}
+        response1 = chain1st.run(inputs1)
+        output1stText = output1stText + response1
+        #print (f"\n 第一次翻译结果： " ,response1)
 
-    inputs2= {"essay": chunk, "trans_1st":response1}
-    response2=chain2nd.run(inputs2 )
-    output2ndText = output2ndText + response2
+        inputs2= {"essay": chunk, "trans_1st":response1}
+        response2=chain2nd.run(inputs2 )
+        output2ndText = output2ndText + response2
 
-    output3rdText=  "\n\n--------------------------------------------------------------------------------------\n"+chunk+"\n\n------------------------------------------------------------------------------------\n"+response1+"\n\n-----------------------------------------------------------------------------------\n"+response2
-
+        output3rdText = output3rdText + "\n\n--------------------------------------------------------------------------------------\n"+chunk+"\n\n------------------------------------------------------------------------------------\n"+response1+"\n\n-----------------------------------------------------------------------------------\n"+response2
+    except BaseException as e:
+        print("$$$!!!!  BaseException : ",e)
+        continue
 with open(output1stFileName, 'a', encoding='utf-8') as file1:
     file1.write(output1stText)
 

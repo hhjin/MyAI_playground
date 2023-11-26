@@ -5,6 +5,11 @@ from langchain.chat_models import ChatOpenAI ,AzureChatOpenAI
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 import sys
 import re
+import argparse
+import os
+
+print(sys.path)
+sys.path.append('.')
 
 from langchain.prompts.chat import (
     ChatPromptTemplate,
@@ -95,24 +100,35 @@ GPT4 或其他 LLMs 需要继续改进的方向包括：
 langchain.verbose = False
 llmchat=AzureChatOpenAI(streaming=True,deployment_name="gpt35turbo", max_tokens=1500, temperature=0, callbacks=[StreamingStdOutCallbackHandler()])
 
+PROMPT_test = PromptTemplate(   template=prompt_template, input_variables=["essay"]  )
+chainTest = LLMChain(llm=llmchat, prompt=PROMPT_test)
+
+chat_prompt = ChatPromptTemplate(messages=prompt_messages_polish)
+chainPolish = LLMChain(llm=llmchat, prompt=chat_prompt)
 
 '''
  ### hard code test
 inputs= {"essay": essay}
-PROMPT_test = PromptTemplate(   template=prompt_template, input_variables=["essay"]  )
-chainTest = LLMChain(llm=llmchat, prompt=PROMPT_test)
 chainTest.run(inputs)
 
-chat_prompt = ChatPromptTemplate(messages=prompt_messages_polish)
-chainPolish = LLMChain(llm=llmchat, prompt=chat_prompt)
 chainPolish.run(inputs)
  ### end  test
 '''
 
-fileName='/Users/henryking/Desktop/AI/Doc/paper/什么是变压器模型及其工作原理？.txt'
-output1stFileName=fileName.split('.')[0]+"_润色.md"
-output1stText=f"\n\n######################  {output1stFileName} ##########\n\n"
+# Parse arguments
+parser = argparse.ArgumentParser(description='Polish the  Chinese(translated) with GPT')
+parser.add_argument('fileName', type=str, help='中文第一次翻译原文')
+args = parser.parse_args()
+fileName=args.fileName
+output1stFileName = os.path.splitext(fileName)[0] + '_精译.md'
+print(f"\n\n########    output_file_name  :  {output1stFileName}")
 
+# hardcode filename for debug test
+#fileName='HowToDoGreatWork_精译.md'
+#output1stFileName=fileName.split('.')[0]+"_润色.md"
+
+
+output1stText=f"\n\n######################  {output1stFileName} ##########\n\n"
 with open(fileName, 'r', encoding='utf-8') as file:
     markdown_text = file.read()
 
@@ -122,11 +138,14 @@ for txt in chunks:
 for i, chunk in enumerate(chunks):
     #if i!=4 :
      #   continue
-    print(f"\n\n\n################################### chunk - {i}  \n")
-    inputs1= {"essay": chunk}
-    response1 = chainPolish.run(inputs1)
-    output1stText = output1stText + response1
-   
+    try :
+        print(f"\n\n\n################################### chunk - {i}  \n")
+        inputs1= {"essay": chunk}
+        response1 = chainPolish.run(inputs1)
+        output1stText = output1stText + response1
+    except BaseException as e:
+        print("$$$!!!!  BaseException : ",e)
+        continue
 
 with open(output1stFileName, 'a', encoding='utf-8') as file1:
     file1.write(output1stText)
