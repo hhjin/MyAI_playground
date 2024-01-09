@@ -153,9 +153,9 @@ class QA_Toolkit():
 
     def  printMatchedDocs(self, result_list) :
         # 打印输出
-        for document, source in result_list:
-            print("\n\n\n #######¢§∞∞∞∞§§§§§§££££™¢∞∞∞######   文档内容 :  ######¢§∞∞∞∞§§§§§§££££™¢∞∞∞######$\n\n",
-            document[1]  ,"\n\n ############## Source:\n       ", source[1].get("source") )
+        for document in result_list:
+            print("\n\n\n #######¢§∞∞∞∞§§§§§§££££™¢∞∞∞######   文档内容 :  ######¢§∞∞∞∞§§§§§§££££™¢∞∞∞######\n\n", 
+            document.page_content, "\n\n ############ Source:\n     ",document.metadata.get("source"))
 
     def loadFAISStore(self, indexFile , pklName) -> FAISS :
         print ("load index file : "+indexFile)

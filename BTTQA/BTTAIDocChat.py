@@ -106,7 +106,7 @@ def bttqa_chat_chain(llm, store, query , chat_prompt,  chat_history=[], topk=6 )
 
 
 #############     main start   #############################  
-langchain.verbose = False
+langchain.verbose = True
 myQAKit=QA_Toolkit("./Chroma_DB_300.2300")
 storeOpenAI_Chroma=myQAKit.get_dbstore_openai()
 storeOpenAI_Supabase=myQAKit.get_dbstore_supabase()
@@ -137,6 +137,6 @@ while True:
           if query=="":
                 break
         
-        result=bttqa_chat_chain(llmAzureChat, storeOpenAI_Chroma, query, chat_prompt ,chat_history ,8 )               
+        result=bttqa_chat_chain(llmAzureChat, storeOpenAI_Chroma, query, chat_prompt ,chat_history ,3 )               
         
         #chat_history.append((query, result))
