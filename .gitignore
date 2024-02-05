@@ -10,6 +10,8 @@ Chroma_*/
 Chorma_*/
 NotionQA_faiss/Indexs_backup
 
+paul_graham_eval
+
 # langchain notebook
 extras
 
@@ -96,7 +98,7 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 notebooks/
-
+ipynb/llama_index/
 # IPython
 profile_default/
 ipython_config.py

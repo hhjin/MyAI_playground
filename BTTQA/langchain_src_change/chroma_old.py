@@ -4,7 +4,9 @@ from __future__ import annotations
 import logging
 import uuid
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Type
-from openai import InvalidRequestError
+# from openai import InvalidRequestError
+from openai import OpenAIError
+
 import time
 import numpy as np
 
@@ -182,7 +184,7 @@ class Chroma(VectorStore):
                         print("\n\n")
                         embed = self._embedding_function.embed_query(texts[i])
                         
-                    except InvalidRequestError as e:
+                    except OpenAIError as e:
                         print("\n\n\n############# Error : ", e)
                         
                         if texts[i]>3300:

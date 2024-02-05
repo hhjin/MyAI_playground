@@ -1,9 +1,9 @@
 from typing import Any, Dict, List, Optional
-from langchain import PromptTemplate ,LLMChain
+from langchain import LLMChain
 import sys
 import time
 sys.path.append('utils/')
-from mylangchainutils import QA_Toolkit 
+from mylangchainutils import QA_Toolkit  
 import langchain
 from langchain.llms import LlamaCpp
 from langchain.callbacks.manager import CallbackManager
@@ -80,14 +80,20 @@ chat_prompt = ChatPromptTemplate.from_messages(
 )
 
 
+
+
 def bttqa_chat_chain(llm, store, query , chat_prompt,  chat_history=[], topk=6 ):
     
     print(f"\n\n###################   bttqa_chat_chain,   store : {store} \n\n########### LLM : {llm}\n")
-    docs = myQAKit.similarity_search(store, query, k=topk)
+    docs = myQAKit.similarity_search(store, query, k=topk) 
+    #contexs=[{f"\n### context {i} :": doc.page_content.strip()} for i, doc in enumerate(docs)] 
+
+    contexs=myQAKit.reRanker_BGE_large(query, docs)
+    #contexs=myQAKit.reRanker_BCEbase(query, docs)
     
-    contexs=[{f"\n### context {i} :": doc.page_content.strip()} for i, doc in enumerate(docs)] 
     inputs= {"context": contexs, "question":query.strip(), "language": language,"chat_history": chat_history}
-    print("\n\nAI : ¡™£¢∞§¶•ªº–≠œ∑´®†¥˙©ƒ∆˚¬…æµ˜∫√ç√√ç≈ç∫˜∫√ç≈≈≈≥÷≤µ˜∫√√˙≈≈≈∞§§∞§∞§§¶¶••¶¶§§¡™£¢∞§¶•ªº–≠œ∑´®†¥¨ˆœ∑´®†¥¨øππππ©˙∆˚¬…ææ…≈ç√∫˜µ≤≥÷ ")
+    
+    print("\n\n#### AI : ¡™£¢∞§¶•ªº–≠œ∑´®†¥˙©ƒ∆˚¬…æµ˜∫ç∫√ç≈≈≥÷≤µ˜∫√√˙≈∞§∞§§•¡™£¢∞§¶•ππ©˙∆˚¬…ææ…≈ç√∫≤≥÷ ")
     
     qaChatchain = LLMChain(llm=llm, prompt=chat_prompt )
     response=qaChatchain.run(inputs)
@@ -104,14 +110,19 @@ def bttqa_chat_chain(llm, store, query , chat_prompt,  chat_history=[], topk=6 )
     return response
 
 
-
 #############     main start   #############################  
+ 
 langchain.verbose = True
-myQAKit=QA_Toolkit("./Chroma_DB_300.2300")
+ 
+myQAKit=QA_Toolkit("./Chroma_DB_UDTT_IC490")
 storeOpenAI_Chroma=myQAKit.get_dbstore_openai()
-storeOpenAI_Supabase=myQAKit.get_dbstore_supabase()
+storeBGE_Chroma=myQAKit.get_dbstore_BGE()
+#storeBce_Chroma=myQAKit.get_dbstore_bce()
+
+#storeOpenAI_Supabase=myQAKit.get_dbstore_supabase()
 llmAzureChat=myQAKit.get_chat_azure(streaming=True,deployment_name="gpt35turbo-16k", max_tokens=2300, temperature=0.23,)
 llmAzure3000=myQAKit.get_llm_azure( max_tokens=3000)
+
 
 '''
 #store_Cohere=myQAKit.get_dbstore_cohere()
@@ -137,6 +148,6 @@ while True:
           if query=="":
                 break
         
-        result=bttqa_chat_chain(llmAzureChat, storeOpenAI_Chroma, query, chat_prompt ,chat_history ,3 )               
+        result=bttqa_chat_chain(llmAzureChat, storeOpenAI_Chroma, query, chat_prompt ,chat_history ,10 )               
         
         #chat_history.append((query, result))
