@@ -80,8 +80,6 @@ chat_prompt = ChatPromptTemplate.from_messages(
 )
 
 
-
-
 def bttqa_chat_chain(llm, store, query , chat_prompt,  chat_history=[], topk=6 ):
     
     print(f"\n\n###################   bttqa_chat_chain,   store : {store} \n\n########### LLM : {llm}\n")
@@ -113,16 +111,24 @@ def bttqa_chat_chain(llm, store, query , chat_prompt,  chat_history=[], topk=6 )
 #############     main start   #############################  
  
 langchain.verbose = True
- 
-myQAKit=QA_Toolkit("./Chroma_DB_UDTT_IC490")
-storeOpenAI_Chroma=myQAKit.get_dbstore_openai()
-storeBGE_Chroma=myQAKit.get_dbstore_BGE()
+## 0.4.0 chormadb 版本之前的旧 格式数据库： 
+#myQAKit=QA_Toolkit("LocalData/old_chroma/Chroma_DB_UDTT_IC490")
+
+## new chormadb version DB file migrated from old version created by old langchain, can be used by new langchain
+#myQAKit=QA_Toolkit("LocalData/chroma/Chroma_DB_UDTT_IC490_migrated")
+#storeOpenAI_Chroma=myQAKit.get_dbstore_openai( )
+#storeBGE_Chroma=myQAKit.get_dbstore_BGE( )
 #storeBce_Chroma=myQAKit.get_dbstore_bce()
+
+
+## new chormadb version DB file created by llama-index, 注意collection_name 要匹配
+myQAKit=QA_Toolkit("LocalData/chroma/UDTTIC490_llamaindex-AllChunks/openai-ada2-allrandomID")
+storeOpenAI_Chroma=myQAKit.get_dbstore_openai(chromaPath_suffix=False , collection_name="quickstart")
+
 
 #storeOpenAI_Supabase=myQAKit.get_dbstore_supabase()
 llmAzureChat=myQAKit.get_chat_azure(streaming=True,deployment_name="gpt35turbo-16k", max_tokens=2300, temperature=0.23,)
 llmAzure3000=myQAKit.get_llm_azure( max_tokens=3000)
-
 
 '''
 #store_Cohere=myQAKit.get_dbstore_cohere()

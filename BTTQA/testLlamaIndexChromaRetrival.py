@@ -4,16 +4,27 @@ from llama_index.vector_stores import ChromaVectorStore
 from llama_index.llms import AzureOpenAI
 import chromadb
 import os
+from llama_index.embeddings import HuggingFaceEmbedding
 
 # 使用Azure OpenAI Service , 需要 llamaindex_src_change/embeddings/openai.py 覆盖   
-OPENAI_API_KEY= os.environ["OPENAI_API_KEY"]
-OPENAI_API_BASE=os.environ["OPENAI_API_BASE"]
-OPENAI_API_VERSION=os.environ["OPENAI_API_VERSION"]
+try:
+    cache_folder= os.environ["TRANSFORMERS_CACHE"]
+    OPENAI_API_KEY= os.environ["OPENAI_API_KEY"]
+    OPENAI_API_BASE=os.environ["OPENAI_API_BASE"]
+    OPENAI_API_VERSION=os.environ["OPENAI_API_VERSION"]
+except KeyError as e:
+	...
 
 azure_lm = AzureOpenAI(engine="gpt35turbo-16k",  temperature=0.0, azure_endpoint=OPENAI_API_BASE, api_key=OPENAI_API_KEY, api_version=OPENAI_API_VERSION)
 azure_embeddings=AzureOpenAIEmbedding(model="embedding2", azure_endpoint=OPENAI_API_BASE, api_key=OPENAI_API_KEY, api_version=OPENAI_API_VERSION)
-service_context = ServiceContext.from_defaults(llm=azure_lm , embed_model=azure_embeddings )
 
+if cache_folder:
+    bge_embed_model = HuggingFaceEmbedding(model_name="jinaai/jina-embeddings-v2-base-en" ,cache_folder=cache_folder )
+else :
+     #bge_embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-base-en-v1.5" )
+     ...
+
+service_context = ServiceContext.from_defaults(llm=azure_lm , embed_model=azure_embeddings )
 
 '''
 from llama_index.llms import OpenAI
@@ -26,8 +37,13 @@ service_context = ServiceContext.from_defaults(llm=llm)
 
 
 # load from disk
-db2 = chromadb.PersistentClient(path="./Chroma_DB_UDTT_IC490_migrated/OpenAI")
-chroma_collection = db2.get_or_create_collection("langchain")
+#db2 = chromadb.PersistentClient(path="LocalData/chroma/Chroma_DB_UDTT_IC490_migrated/OpenAI")
+#chroma_collection = db2.get_or_create_collection("langchain")
+
+db2 = chromadb.PersistentClient(path="LocalData/chroma/UDTTIC490_llamaindex-AllChunks/openai-ada2-allrandomID")
+chroma_collection = db2.get_or_create_collection("quickstart")
+
+
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
 vector_index = VectorStoreIndex.from_vector_store(
     vector_store,

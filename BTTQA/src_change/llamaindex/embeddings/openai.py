@@ -181,7 +181,7 @@ def get_embeddings(
 
     all_embeddings = []
     for (i, text) in enumerate(list_of_text):
-        print(f"######### llama_index/embeddings/openai.py  get_embeddings list_of_text [{i}]:   {list_of_text[i]}######### ")
+        print(f"\n\n################## llama_index/embeddings/openai.py  get_embeddings list_of_text [{i}]:   {list_of_text[i]} ")
         data=client.embeddings.create(input=[text], model=engine, **kwargs).data
         all_embeddings.append( data[0].embedding)
 

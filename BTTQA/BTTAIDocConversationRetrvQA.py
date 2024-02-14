@@ -208,7 +208,7 @@ def bttqa_conversation_retriv_chain(llm, store, query , chat_prompt,  chat_histo
 
 #############     main start   #############################  
 langchain.verbose = True
-myQAKit=QA_Toolkit("./Chroma_DB_300.2300")
+myQAKit=QA_Toolkit("LocalData/old_chroma/Chroma_DB_300.2300")
 storeOpenAI_Chroma=myQAKit.get_dbstore_openai()
 #storeOpenAI_Supabase=myQAKit.get_dbstore_supabase()
 store_Cohere=myQAKit.get_dbstore_cohere()

@@ -43,7 +43,6 @@ print(f"###### totalCharLength  : {totalCharLength}")
 
 CHUNK_SIZE=  490  #1666 #char   #334      #374   #430   #490
 OVERLAP_SIZE= 90  #166 #char    #60       #123   #60    #90
-
  
 
 tokenTextSplitter =  TokenTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=OVERLAP_SIZE)

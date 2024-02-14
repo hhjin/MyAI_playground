@@ -43,14 +43,18 @@ class QA_Toolkit():
         print(f"\n....load Subpabase  {table_name} , {supabase_url} , {query_name} , cost time: %.2f 秒\n" % run_time)
         return vector_store
 
-    def get_dbstore_openai(self) :
+    def get_dbstore_openai(self, chromaPath_suffix=True , collection_name="langchain") :
         start_time = time.time()
-        BTTDocDB_path_OpenAI=self.ChromaDB_path+"/OpenAI"
+        if chromaPath_suffix:
+            BTTDocDB_path_OpenAI=self.ChromaDB_path+"/OpenAI"
+        else :
+            BTTDocDB_path_OpenAI=self.ChromaDB_path
         #langchain_embeddings_azureopenai = OpenAIEmbeddings(deployment="embedding2")
         langchain_embeddings_azureopenai = AzureOpenAIEmbeddings(deployment="embedding2")
         #langchain_embeddings_azureopenai = OpenAIEmbeddings()
-        
-        storeOpenAI=Chroma(persist_directory=BTTDocDB_path_OpenAI , embedding_function=langchain_embeddings_azureopenai)
+        storeOpenAI=Chroma(persist_directory=BTTDocDB_path_OpenAI , embedding_function=langchain_embeddings_azureopenai ,
+                           collection_name=collection_name)
+    
         #the _embedding_function should be same when the store is created
         #storeOpenAI._embedding_function=langchain_embeddings_azureopenai
         end_time = time.time()
@@ -59,52 +63,64 @@ class QA_Toolkit():
         time.sleep(0.8)  # Azure rate limit aviod
         return storeOpenAI
     
-    def get_dbstore_cohere(self, model="large") :
+    def get_dbstore_cohere(self, model="large", chromaPath_suffix=True,collection_name="langchain") :
         start_time = time.time()
-        BTTDocDB_path_Cohere=self.ChromaDB_path+"/Cohere"
+        if chromaPath_suffix:
+            BTTDocDB_path_Cohere=self.ChromaDB_path+"/Cohere"
+        else :
+            BTTDocDB_path_Cohere=self.ChromaDB_path
         langchain_embeddings_Cohere  = CohereEmbeddings(cohere_api_key="fggqIlX01EF3SdhYFdeYxaGBx5CcpIEUDRjEHbcS" ,model=model)
-        storeCohere=Chroma(persist_directory=BTTDocDB_path_Cohere , embedding_function=langchain_embeddings_Cohere)
+        storeCohere=Chroma(persist_directory=BTTDocDB_path_Cohere , embedding_function=langchain_embeddings_Cohere ,
+                           collection_name=collection_name)
         end_time = time.time()
         run_time = end_time - start_time
         print(f"\n....load ChromaDB  {BTTDocDB_path_Cohere} , cost time: %.2f 秒\n" % run_time)
         return storeCohere
 
-    def get_dbstore_sentence(self) :
+    def get_dbstore_sentence(self, chromaPath_suffix=True,collection_name="langchain") :
         start_time = time.time()
-        BTTDocDB_path_SETF=self.ChromaDB_path+"/SETF"
+        if chromaPath_suffix:
+            BTTDocDB_path_SETF=self.ChromaDB_path+"/SETF"
+        else :
+            BTTDocDB_path_SETF=self.ChromaDB_path
         storeSETF=Chroma(persist_directory=BTTDocDB_path_SETF , embedding_function=SentenceTransformerEmbeddings())
         cache_folder= os.environ["TRANSFORMERS_CACHE"]
         model_name="all-MiniLM-L6-v2"
         if cache_folder :
-            storeSETF=Chroma(persist_directory=BTTDocDB_path_SETF , embedding_function=SentenceTransformerEmbeddings(model_name=model_name,cache_folder=cache_folder))
+            storeSETF=Chroma(persist_directory=BTTDocDB_path_SETF , collection_name=collection_name, embedding_function=SentenceTransformerEmbeddings(model_name=model_name,cache_folder=cache_folder))
         else :
-            storeSETF=Chroma(persist_directory=BTTDocDB_path_SETF , embedding_function=SentenceTransformerEmbeddings(model_name=model_name))
+            storeSETF=Chroma(persist_directory=BTTDocDB_path_SETF , collection_name=collection_name, embedding_function=SentenceTransformerEmbeddings(model_name=model_name))
 
         end_time = time.time()
         run_time = end_time - start_time
         print(f"\n....load ChromaDB  {BTTDocDB_path_SETF} , cost time: %.2f 秒\n" % run_time)
         return storeSETF
 
-    def get_dbstore_bce(self) :
+    def get_dbstore_bce(self , chromaPath_suffix=True,collection_name="langchain") :
         start_time = time.time()
-        BTTDocDB_path_SETF=self.ChromaDB_path+"/BCE"
-         
+        if chromaPath_suffix:
+            BTTDocDB_path_SETF=self.ChromaDB_path+"/BCE"
+        else :
+            BTTDocDB_path_SETF=self.ChromaDB_path         
         cache_folder= os.environ["TRANSFORMERS_CACHE"]
         model_name="maidalun1020/bce-embedding-base_v1"
         if cache_folder :
-            storeSETF=Chroma(persist_directory=BTTDocDB_path_SETF , embedding_function=SentenceTransformerEmbeddings(model_name=model_name,cache_folder=cache_folder))
+            storeSETF=Chroma(persist_directory=BTTDocDB_path_SETF , collection_name=collection_name, embedding_function=SentenceTransformerEmbeddings(model_name=model_name,cache_folder=cache_folder))
         else :
-            storeSETF=Chroma(persist_directory=BTTDocDB_path_SETF , embedding_function=SentenceTransformerEmbeddings(model_name=model_name))
+            storeSETF=Chroma(persist_directory=BTTDocDB_path_SETF ,  collection_name=collection_name,embedding_function=SentenceTransformerEmbeddings(model_name=model_name))
         end_time = time.time()
         run_time = end_time - start_time
         print(f"\n....load ChromaDB  {BTTDocDB_path_SETF} , cost time: %.2f 秒\n" % run_time)
         return storeSETF
     
-    def get_dbstore_BGE(self) :
+    def get_dbstore_BGE(self ,chromaPath_suffix=True, collection_name="langchain") :
         #print(f"\n....load ChromaDB  start {self.ChromaDB_path} ")
         start_time = time.time()
         
-        BTTDocDB_path_SETF=self.ChromaDB_path+"/BGE_large_en_v1.5"
+        if chromaPath_suffix:
+            BTTDocDB_path_SETF=self.ChromaDB_path+"/BGE_large_en_v1.5"
+        else :
+            BTTDocDB_path_SETF=self.ChromaDB_path   
         try:
             cache_folder= os.environ["TRANSFORMERS_CACHE"]
         except KeyError as e:
@@ -112,9 +128,9 @@ class QA_Toolkit():
 
         model_name="BAAI/bge-large-en-v1.5"
         if cache_folder :
-            storeSETF=Chroma(persist_directory=BTTDocDB_path_SETF , embedding_function=SentenceTransformerEmbeddings(model_name=model_name,cache_folder=cache_folder))
+            storeSETF=Chroma(persist_directory=BTTDocDB_path_SETF , collection_name=collection_name, embedding_function=SentenceTransformerEmbeddings(model_name=model_name,cache_folder=cache_folder))
         else :
-            storeSETF=Chroma(persist_directory=BTTDocDB_path_SETF , embedding_function=SentenceTransformerEmbeddings(model_name=model_name))
+            storeSETF=Chroma(persist_directory=BTTDocDB_path_SETF ,  collection_name=collection_name, embedding_function=SentenceTransformerEmbeddings(model_name=model_name))
         end_time = time.time()
         run_time = end_time - start_time
         print(f"\n....load ChromaDB  {BTTDocDB_path_SETF} , cost time: %.2f 秒\n" % run_time)

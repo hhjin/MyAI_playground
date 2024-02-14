@@ -107,7 +107,7 @@ def bttqa_chat_chain(llm, store, query , chat_prompt,  chat_history=[], topk=6 )
 
 #############     main start   #############################  
 langchain.verbose = False
-myQAKit=QA_Toolkit("./Chroma_DB_430.3000")
+myQAKit=QA_Toolkit("LocalData/old_chroma/Chroma_DB_430.3000")
 storeOpenAI_Chroma=myQAKit.get_dbstore_openai()
 storeOpenAI_Supabase=myQAKit.get_dbstore_supabase()
 
