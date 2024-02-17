@@ -111,19 +111,23 @@ def bttqa_chat_chain(llm, store, query , chat_prompt,  chat_history=[], topk=6 )
 #############     main start   #############################  
  
 langchain.verbose = True
-## 0.4.0 chormadb 版本之前的旧 格式数据库： 
-#myQAKit=QA_Toolkit("LocalData/old_chroma/Chroma_DB_UDTT_IC490")
+ ## default conda env 3.10.9
+## 0.4.0 chormadb 版本之前的旧 格式数据库：
+myQAKit=QA_Toolkit("LocalData/old_chroma/Chroma_DB_UDTT_IC490")
+storeOpenAI_Chroma=myQAKit.get_dbstore_openai( )
+storeBGE_Chroma=myQAKit.get_dbstore_BGE( )
 
+# conda env:" llama-index or base on M1 ;   base on Windows 
 ## new chormadb version DB file migrated from old version created by old langchain, can be used by new langchain
 #myQAKit=QA_Toolkit("LocalData/chroma/Chroma_DB_UDTT_IC490_migrated")
 #storeOpenAI_Chroma=myQAKit.get_dbstore_openai( )
 #storeBGE_Chroma=myQAKit.get_dbstore_BGE( )
 #storeBce_Chroma=myQAKit.get_dbstore_bce()
 
-
+# conda env:" llama-index or base on M1 ;   base on Windows 
 ## new chormadb version DB file created by llama-index, 注意collection_name 要匹配
-myQAKit=QA_Toolkit("LocalData/chroma/UDTTIC490_llamaindex-AllChunks/openai-ada2-allrandomID")
-storeOpenAI_Chroma=myQAKit.get_dbstore_openai(chromaPath_suffix=False , collection_name="quickstart")
+#myQAKit=QA_Toolkit("LocalData/chroma/UDTTIC490_llamaindex-AllChunks/openai-ada2-allrandomID")
+#storeOpenAI_Chroma=myQAKit.get_dbstore_openai(chromaPath_suffix=False , collection_name="quickstart")
 
 
 #storeOpenAI_Supabase=myQAKit.get_dbstore_supabase()
@@ -154,6 +158,6 @@ while True:
           if query=="":
                 break
         
-        result=bttqa_chat_chain(llmAzureChat, storeOpenAI_Chroma, query, chat_prompt ,chat_history ,10 )               
+        result=bttqa_chat_chain(llmAzureChat, storeBGE_Chroma, query, chat_prompt ,chat_history ,10 )               
         
         #chat_history.append((query, result))

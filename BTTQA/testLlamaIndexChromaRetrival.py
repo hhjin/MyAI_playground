@@ -37,11 +37,11 @@ service_context = ServiceContext.from_defaults(llm=llm)
 
 
 # load from disk
-#db2 = chromadb.PersistentClient(path="LocalData/chroma/Chroma_DB_UDTT_IC490_migrated/OpenAI")
-#chroma_collection = db2.get_or_create_collection("langchain")
+db2 = chromadb.PersistentClient(path="LocalData/chroma/Chroma_DB_UDTT_IC490_migrated/OpenAI")
+chroma_collection = db2.get_or_create_collection("langchain")
 
-db2 = chromadb.PersistentClient(path="LocalData/chroma/UDTTIC490_llamaindex-AllChunks/openai-ada2-allrandomID")
-chroma_collection = db2.get_or_create_collection("quickstart")
+#db2 = chromadb.PersistentClient(path="LocalData/chroma/UDTTIC490_llamaindex-AllChunks/openai-ada2-allrandomID")
+#chroma_collection = db2.get_or_create_collection("quickstart")
 
 
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
