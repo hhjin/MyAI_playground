@@ -18,6 +18,8 @@ from BCEmbedding import RerankerModel
 import torch
 import numpy as np
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
+import datetime
+import json
 
 class QA_Toolkit():
 
@@ -151,7 +153,7 @@ class QA_Toolkit():
             model_name=model_name,  
             temperature= temperature,
             max_tokens=max_tokens,
-            streaming=streaming,  # Cannot stream results with multiple prompts.
+            streaming=streaming,  # Cannot stream results with multiple Contexts.
             callbacks=callbacks
         )
         return llm_azure
@@ -159,7 +161,7 @@ class QA_Toolkit():
      
     def get_chat_azure(self, 
         deployment_name :Optional[str]="gpt35turbo",  # gpt35turbo-16k   , gpt35turbo
-        openai_api_version :Optional[str]="2023-03-15-preview",
+        openai_api_version :Optional[str]="2023-07-01-preview",
         temperature=0,
         streaming=True,
         max_tokens=3000,
@@ -171,7 +173,7 @@ class QA_Toolkit():
             deployment_name=deployment_name,
             temperature= temperature,
             max_tokens=max_tokens,
-            streaming=streaming,  # Cannot stream results with multiple prompts.
+            streaming=streaming,  # Cannot stream results with multiple Contexts.
             callbacks=callbacks ,
         )
         return chatAzure
@@ -188,7 +190,7 @@ class QA_Toolkit():
             model_name=model_name,
             temperature= temperature,
             max_tokens=max_tokens,
-            streaming=streaming,  # Cannot stream results with multiple prompts.
+            streaming=streaming,  # Cannot stream results with multiple Contexts.
             callbacks=callbacks ,
         )
     
@@ -207,14 +209,14 @@ class QA_Toolkit():
         # 打印输出
         for document, score in result_list:
             print("\n\n\n #######¢§∞∞∞∞§§§§§§££££™¢∞∞∞######   文档内容 :  ######¢§∞∞∞∞§§§§§§££££™¢∞∞∞######\n\n", 
-            document.page_content, "\n\n ####### 相似度得分: ", score,"\n\n ############ Source:\n     ",document.metadata.get("source"))
+            document.page_content, "\n ####### 相似度得分: ", score,"\n ############ Source:   ",document.metadata.get("source"))
             #print(f"Content: {document.page_content}, Metadata: {document.metadata}, Score: {score}")
 
     def  printMatchedDocs(self, result_list) :
         # 打印输出
         for document in result_list:
             print("\n\n\n #######¢§∞∞∞∞§§§§§§££££™¢∞∞∞######   文档内容 :  ######¢§∞∞∞∞§§§§§§££££™¢∞∞∞######\n\n", 
-            document.page_content, "\n\n ############ Source:\n     ",document.metadata.get("source"))
+            document.page_content, "\n ############ Source:   ",document.metadata.get("source"))
 
     '''
     def loadFAISStore(self, indexFile , pklName) -> FAISS :
@@ -229,23 +231,25 @@ class QA_Toolkit():
         return store
     '''
 
-    def similarity_search_with_score(self,  store , query,   k=5) :
+    def similarity_search_with_score(self,  store , query,   k=5 ,printDocs=True) :
         start_time = time.time()
         matchedDocs=store.similarity_search_with_score(query , k)
         end_time = time.time()
         run_time = end_time - start_time
         print(f"\n....{store.__class__.__name__} -- similarity_search_with_score  cost time: %.2f 秒\n" % run_time)
-        self.printMatchedDocsWithScore (matchedDocs)
+        if printDocs:
+            self.printMatchedDocsWithScore (matchedDocs)
         return matchedDocs
 
-    def similarity_search( self, store ,query, k=5) :
+    def similarity_search( self, store ,query, k=5 , printDocs=True) :
         start_time = time.time()
         matchedDocs=store.similarity_search(query, k)
         end_time = time.time()
         run_time = end_time - start_time
 
         print(f"\n....{store.__class__.__name__} -- similarity_search  cost time: %.2f 秒\n" % run_time)
-        self.printMatchedDocs(matchedDocs)
+        if printDocs:
+            self.printMatchedDocs(matchedDocs)
         return matchedDocs
         
     def max_marginal_relevance_search( self, store ,query, k=5) :
@@ -263,12 +267,11 @@ class QA_Toolkit():
         start_time = time.time()
         # your query and corresponding passages
         query = query.strip()
-        passages = [ doc.page_content.strip() for doc in docs]
+        passages = [ f"\n{doc.page_content.strip()}\n## Source: {doc.metadata['source']}\n---------\n" for doc in docs]
 
         #  # 为了快速本地加载,需要修改RerankerModel 源码,AutoTokenizer 添加 local_files_only=True
         model = RerankerModel(model_name_or_path="maidalun1020/bce-reranker-base_v1",local_files_only=True)
-
-
+        
         #  在 RerankerModel.rerank 方法中,当“通道”很长时,我们提供了一种先进的预处理程序,用于生产 sentence_pairs 。
         rerank_results = model.rerank(query, passages)
         print(rerank_results)
@@ -290,7 +293,8 @@ class QA_Toolkit():
         start_time = time.time()
         # your query and corresponding passages
         query = query.strip()
-        pairs = [ [query,  doc.page_content.strip()]  for doc in docs]
+        pairs = [ [query,  f"\n{doc.page_content.strip()}\n## Source: {doc.metadata['source']}\n---------\n" ]  for doc in docs]
+        print(f"\n##### RAG reRank context size : {len(docs)}")
         
         tokenizer = AutoTokenizer.from_pretrained('BAAI/bge-reranker-large' ,local_files_only=True)
         model = AutoModelForSequenceClassification.from_pretrained('BAAI/bge-reranker-large',local_files_only=True)
@@ -312,6 +316,37 @@ class QA_Toolkit():
         print(f"\n....reRanker_BGE_large cost time: %.2f 秒\n" % run_time)
 
         return rerank_passages[:topk]
+
+
+def save_chat_log_file(query, context, answer , vectorDB, promptClass , rootPath="LocalData/chatLogs"):
+    try:
+        file_path = rootPath+"/chatLog.json"
+        current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        chat_log = {
+            "time": current_time,
+            "query": query,
+            "vectorDB": vectorDB,
+            "answer": answer,
+            "promptClass": promptClass,
+            "Context": context
+        }
+        
+        with open(file_path, 'a' ,encoding='utf-8') as file:
+            file.write(json.dumps(chat_log) + ",\n")
+        
+        output = f"\n\n############ Query : {chat_log['query']}         ------ {vectorDB}::{promptClass}  at {chat_log['time']}\n\n############ Context : \n\n{chat_log['Context']}\n\n\n ############ Answer :\n\n{chat_log['answer']}\n\n\n\n"
+        
+        with open(rootPath+"/chatLog.md", 'a',encoding='utf-8') as file:
+            file.write(output)
+        
+        output_qa = f"\n\n############ Query : {chat_log['query']}        ------ {vectorDB}::{promptClass}  at {chat_log['time']}\n\n############ Answer :\n\n{chat_log['answer']}\n\n\n\n\n"
+        with open(rootPath+"/chatLogQA.md", 'a',encoding='utf-8') as file:
+            file.write(output_qa)
+    
+    except Exception as e:
+        print(e)
+        raise Exception('saveChatLogFile error: ' + str(e))
     
 '''
 import numpy as np

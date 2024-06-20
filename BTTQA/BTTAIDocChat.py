@@ -132,7 +132,7 @@ storeBGE_Chroma=myQAKit.get_dbstore_BGE( )
 
 #storeOpenAI_Supabase=myQAKit.get_dbstore_supabase()
 llmAzureChat=myQAKit.get_chat_azure(streaming=True,deployment_name="gpt35turbo-16k", max_tokens=2300, temperature=0.23,)
-llmAzure3000=myQAKit.get_llm_azure( max_tokens=3000)
+#llmAzure3000=myQAKit.get_llm_azure( max_tokens=3000)
 
 '''
 #store_Cohere=myQAKit.get_dbstore_cohere()

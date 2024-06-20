@@ -18,7 +18,7 @@ store=mylangchainutils.loadFAISStore( indexFile,pklName)
 index=store.index
  
 mylangchainutils.similarity_search_with_score ( store ,"How to prompt productivity by AI tools?",2)
-#mylangchainutils.similarity_search_with_score ( store ,"GPT-4 limitation" )  # the default n=1 used while missing
+#mylangchainutils.similarity_search_with_score ( store ,"gpt-4-0125-preview limitation" )  # the default n=1 used while missing
  
 # Load another test index of 5M
 store5m = mylangchainutils.loadFAISStore( "Indexs_backup/notionDB_001.index", "faiss_storeMy.pkl")
@@ -31,7 +31,7 @@ storetweets = mylangchainutils.loadFAISStore( "Indexs_backup/notion_tweets.index
 indextweets =storetweets.index
  
 #matchedDocs=storetweets.similarity_search_with_score("How to prompt productivity by AI tools?",3)
-#matchedDocs=storetweets.similarity_search_with_score("GPT-4 limitation",2)
+#matchedDocs=storetweets.similarity_search_with_score("gpt-4-0125-preview limitation",2)
 #printMatchedDocs (matchedDocs)
 
 

@@ -1,14 +1,11 @@
 import os
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.document_loaders import TextLoader
+
 import sys
 import json
 sys.path.append('utils/')
 from mylangchainutils import QA_Toolkit 
-from langchain.embeddings.openai import OpenAIEmbeddings
-from supabase.client import Client, create_client
-from langchain.vectorstores import SupabaseVectorStore
-from langchain.text_splitter import TokenTextSplitter
+
+
 import re
 from langchain.vectorstores import Chroma
 import tiktoken
@@ -18,21 +15,15 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
     num_tokens = len(encoding.encode(string))
     return num_tokens
 
-supabase_url = os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
-supabase_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
-supabase: Client = create_client(supabase_url, supabase_key)
-langchain_embeddings_azureopenai = OpenAIEmbeddings(deployment="embedding2")
-#langchain_embeddings_azureopenai = OpenAIEmbeddings()
 
 #从头生成 表数据 
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.document_loaders import TextLoader
-from langchain.docstore.document import Document
-from langchain.document_loaders.csv_loader import CSVLoader
+from langchain.text_splitter import TokenTextSplitter
+
 
 #  file_path 相对路径是 从当前workspace根目录(py)
 # Read the JSON file
-with open('udtt_ic_by_urlist.json', 'r') as file:
+with open('udtt_ic_by_urlist.json', 'r', encoding='utf-8') as file:
     json_data = json.load(file)
 
 contents = [item['content'] for item in json_data]
@@ -50,17 +41,13 @@ for i, t in enumerate(tokens ):
 print(f"###### totalTokens  : {totalTokens}")
 print(f"###### totalCharLength  : {totalCharLength}")
 
-CHUNK_SIZE=  334  #1666 #char   #334      #374   #430   #490
-OVERLAP_SIZE= 60 #166 #char    #60       #123   #60    #90
-
-#supabase param
-table_name="udtt_ic1666c_langchain"
-query_name="match_udtt_ic1666c_langchain"
-
+CHUNK_SIZE=  1666  #1666 #char   #334      #374   #430   #490
+OVERLAP_SIZE= 166  #166 #char    #60       #123   #60    #90
+ 
 tokenTextSplitter =  TokenTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=OVERLAP_SIZE)
 charTextSplitter =  CharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=OVERLAP_SIZE ,separator=" ")
 
-textSplitter=tokenTextSplitter
+textSplitter=charTextSplitter  #charTextSplitter 用于1666c 字符切分
  
 ###### 如果 supabase 中断，可以从中断的indxe继续 ，##### Current block index  : 789
 #contents = contents[1768:]
@@ -81,17 +68,16 @@ for i, d in enumerate(contents ):
     context_path = first_line
     
     # 文本清洗  # pg_vector documents的清洗方式
-    #'''
+    '''
     cleanedDoc = re.sub(r'\s+', ' ', d)   #把多个连续空格,换行制表符替换成单个空格 
     cleanedDoc=re.sub('\n', ' ', cleanedDoc)   #把所有换行替换成个空格 
-    #'''
+    '''
 
     ## 保留换行的另一种清洗方式    
-    '''
+    
     cleanedDoc = re.sub(r' +', ' ', d)    # 把多个空格合并
     cleanedDoc=re.sub('\n{2,}', '\n', cleanedDoc)  # 把多个换行'\n\n'合并
     cleanedDoc=re.sub('\n +\n', '\n', cleanedDoc)  # 把多个换行空格换行合并
-    ''' 
 
     #如果除了context path的内容很少, 跳过
     if   len(cleanedDoc) < len(context_path) + 160:
@@ -149,14 +135,27 @@ for i, d in enumerate(contents ):
         metadatas = []
     '''
 
+
+
+
 print(f"\n\n ################################## total records : {totalCount}  {len(metadatas)} " )
 print(f"\n\n ################################## skipedCount records : {skipedCount}  " )
 
-#### BLOCK FOR Chroma 
-'''
-vector_store = Chroma.from_texts(docs, langchain_embeddings_azureopenai , metadatas=metadatas, persist_directory="LocalData/old_chroma//Chroma_DB_UDTT_IC374/OpenAI")
-vector_store.persist()
-'''
- 
+ #### BLOCK FOR Chroma 
+from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 
+langchain_embeddings_Sentensetr = SentenceTransformerEmbeddings(model_name="BAAI/bge-large-en-v1.5") # BAAI/bge-large-en-v1.5    #  maidalun1020/bce-embedding-base_v1
+outputfile="udtt_ic1666c_bge-large-en-v1.5.csv"
+with open(outputfile, 'a', encoding='utf-8') as f:
+    f.write(f"id,content,metadata,embedding\n")
+
+    for i, d in enumerate(docs):
+        embed =langchain_embeddings_Sentensetr.embed_query(docs[i])
+        txt=docs[i]
+        txt=re.sub('"', '""', txt) 
+       
+        metadata=metadatas[i]
+        metadata=json.dumps(metadata)
+        metadata=re.sub('"', '""', metadata) 
+        f.write(f'{i},"{txt}","{metadata}","{embed}"\n')
 

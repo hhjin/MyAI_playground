@@ -41,14 +41,13 @@ for i, t in enumerate(tokens ):
 print(f"###### totalTokens  : {totalTokens}")
 print(f"###### totalCharLength  : {totalCharLength}")
 
-CHUNK_SIZE=  490  #1666 #char   #334      #374   #430   #490
-OVERLAP_SIZE= 90  #166 #char    #60       #123   #60    #90
+CHUNK_SIZE=  1666  #1666 #char   #334      #374   #430   #490
+OVERLAP_SIZE= 166  #166 #char    #60       #123   #60    #90
  
-
 tokenTextSplitter =  TokenTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=OVERLAP_SIZE)
 charTextSplitter =  CharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=OVERLAP_SIZE ,separator=" ")
 
-textSplitter=tokenTextSplitter
+textSplitter=charTextSplitter  #charTextSplitter 用于1666c 字符切分
  
 ###### 如果 supabase 中断，可以从中断的indxe继续 ，##### Current block index  : 789
 #contents = contents[1768:]
@@ -79,7 +78,6 @@ for i, d in enumerate(contents ):
     cleanedDoc = re.sub(r' +', ' ', d)    # 把多个空格合并
     cleanedDoc=re.sub('\n{2,}', '\n', cleanedDoc)  # 把多个换行'\n\n'合并
     cleanedDoc=re.sub('\n +\n', '\n', cleanedDoc)  # 把多个换行空格换行合并
-     
 
     #如果除了context path的内容很少, 跳过
     if   len(cleanedDoc) < len(context_path) + 160:
@@ -148,7 +146,7 @@ from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddi
 
 langchain_embeddings_Sentensetr = SentenceTransformerEmbeddings(model_name="BAAI/bge-large-en-v1.5") # BAAI/bge-large-en-v1.5    #  maidalun1020/bce-embedding-base_v1
 
-vector_store = Chroma.from_texts(docs, langchain_embeddings_Sentensetr , metadatas=metadatas, persist_directory="./Chroma_DB_UDTT_IC490/BGE_large_en_v1.5")
+vector_store = Chroma.from_texts(docs, langchain_embeddings_Sentensetr , metadatas=metadatas, persist_directory="LocalData/old_chroma/Chroma_DB_UDTT_IC1666c/BGE_large_en_v1.5_2")
 vector_store.persist()
  
 

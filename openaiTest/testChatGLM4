@@ -1,0 +1,5 @@
+curl --location 'https://open.bigmodel.cn/api/paas/v4/chat/completions' --header 'Content-Type: application/json' --header 'Authorization: Bearer b2b709bf2a7c2fb8e7d5d0db142580a1.hS5AyGwYp9Q3okTu' --data '{ "model": "glm-4",  "max_tokens" :100  , "stream" : true , "messages": [{"role": "user", "content": "Say this is a test!"}], "stream": true }'
+
+
+
+

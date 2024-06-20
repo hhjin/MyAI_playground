@@ -36,7 +36,7 @@ azure_lm = AzureOpenAI(engine="gpt35turbo-16k",  temperature=0.0, azure_endpoint
 azure_embeddings=AzureOpenAIEmbedding(model="embedding2", embed_batch_size=100000, azure_endpoint=OPENAI_API_BASE, api_key=OPENAI_API_KEY, api_version=OPENAI_API_VERSION)
 # OpenAI 支持需要 .zprofile_openai
 #llm = OpenAI(temperature=0, model="gpt-3.5-turbo")  
-#gpt4 = OpenAI(temperature=0, model="gpt-4")
+#gpt4 = OpenAI(temperature=0, model="gpt-4-0125-preview")
 #openai_embeddings=OpenAIEmbedding(model="text-embedding-3-small")  #text-embedding-3-large  text-embedding-3-small
 
 openai.api_key = OPENAI_API_KEY

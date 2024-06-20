@@ -1,7 +1,7 @@
 .vs/
 .vscode/
 .idea/
-
+.stversions/
 # My ignore list
 *.json
 *.csv

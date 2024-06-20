@@ -128,7 +128,7 @@ prompt_messages_1stTrans = [
 
 langchain.verbose = True
 llmchat=AzureChatOpenAI(streaming=True,deployment_name="gpt35turbo-16k", max_tokens=3200, temperature=0, callbacks=[StreamingStdOutCallbackHandler()])
-#llmchat=ChatOpenAI(streaming=True,model_name="gpt-4", max_tokens=3200, temperature=0, callbacks=[StreamingStdOutCallbackHandler()])
+#llmchat=ChatOpenAI(streaming=True,model_name="gpt-4-0125-preview", max_tokens=3200, temperature=0, callbacks=[StreamingStdOutCallbackHandler()])
     
 chat_prompt_1stTrans = ChatPromptTemplate(messages=prompt_messages_1stTrans)
 chain1st = LLMChain(llm=llmchat, prompt=chat_prompt_1stTrans)
